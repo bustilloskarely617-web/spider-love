@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Spidey Love</title>
+  <style>
+    :root{
+      --red:#d13131;
+      --blue:#1e5fb4;
+      --bg:#0b1020;
+      --paper:#fff7f9;
+      --bubble:#fff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;background:linear-gradient(180deg,var(--red),var(--blue));color:#111}
+    .stage{
+      min-height:100vh;
+      display:grid;grid-template-columns:1fr;place-items:center;position:relative;overflow:hidden;padding:2rem;
+    }
+    /* Spidey SVG container */
+    .spidey-wrap{
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-55%) scale(1);max-width:520px;width:60vw;z-index:3;filter:drop-shadow(0 10px 20px rgba(0,0,0,.4));
+      animation:spideyEntrance 1s cubic-bezier(.2,.9,.2,1) .15s both;
+    }
+    @keyframes spideyEntrance{from{transform:translate(-50%,-55%) scale(.6) rotate(-6deg);opacity:0} to{transform:translate(-50%,-55%) scale(1) rotate(0);opacity:1}}
+
+    /* comic panel look */
+    .panel{
+      position:relative;z-index:5;background:rgba(255,255,255,0.92);padding:1.6rem;border-radius:18px;max-width:760px;width:92%;box-shadow:0 10px 30px rgba(0,0,0,.35);
+      border:8px solid rgba(0,0,0,0.12);
+    }
+    h1{margin:0 0 12px 0;color:var(--red);text-shadow:2px 2px 0 rgba(0,0,0,.08);font-size:clamp(18px,3.5vw,34px)}
+    .sub{color:#222;margin-bottom:14px}
+
+    /* speech bubble */
+    .bubble{
+      position:relative;background:var(--bubble);padding:1rem 1.2rem;border-radius:12px;max-width:640px;min-height:120px;display:flex;align-items:center;
+      font-size:clamp(14px,2.2vw,18px);line-height:1.35;box-shadow:6px 8px 0 rgba(0,0,0,0.08);
+    }
+    .bubble:after{content:'';position:absolute;left:18px;bottom:-20px;border-width:16px 14px 0 0;border-style:solid;border-color:var(--bubble) transparent transparent transparent;transform:rotate(-18deg)}
+
+    /* small love note style */
+    .love{display:block;margin-top:.7rem;color:#b3002d;font-weight:600;font-size:0.92em}
+
+    /* controls */
+    .controls{display:flex;gap:12px;align-items:center;margin-top:12px}
+    .btn{background:var(--red);color:white;padding:.6rem .9rem;border-radius:10px;border:0;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);transition:transform .12s ease}
+    .btn:active{transform:translateY(2px)}
+    .btn.secondary{background:var(--blue)}
+
+    /* hearts */
+    .hearts{position:absolute;right:10px;top:10px;z-index:2;pointer-events:none}
+    .heart{width:26px;height:26px;margin:6px;opacity:.9;animation:floatUp 6s linear infinite}
+    .heart:nth-child(2){animation-duration:5s;left:20px}
+    @keyframes floatUp{0%{transform:translateY(30vh) scale(.8);opacity:0}10%{opacity:1}100%{transform:translateY(-30vh) scale(1.15);opacity:0}}
+
+    /* tiny secret button */
+    .secret{position:fixed;left:8px;bottom:8px;z-index:9;opacity:.04;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:transparent;border:2px dashed rgba(255,255,255,0.06);cursor:pointer;transition:opacity .18s}
+    .secret.revealed{opacity:1;transform:scale(1.03);box-shadow:0 6px 18px rgba(0,0,0,.25);}
+
+    /* modal for the love letter */
+    .modal{position:fixed;inset:0;background:linear-gradient(180deg,rgba(3,3,3,.6),rgba(3,3,3,.85));display:none;place-items:center;padding:2rem;z-index:30}
+    .modal.show{display:grid}
+    .letter{background:var(--paper);padding:2rem;border-radius:16px;max-width:720px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.6);color:#111}
+    .close{float:right;background:#e33;padding:.5rem .7rem;border-radius:8px;color:#fff;border:0;cursor:pointer}
+
+    /* progress dots */
+    .dots{display:flex;gap:8px;margin-top:10px}
+    .dot{width:10px;height:10px;border-radius:50%;background:rgba(0,0,0,.12)}
+    .dot.active{background:var(--red);box-shadow:0 3px 8px rgba(0,0,0,.18)}
+
+    /* responsive tweaks */
+    @media (max-width:520px){.bubble{min-height:100px;padding:.9rem}}
+  </style>
+</head>
+<body>
+  <div class="stage">
+
+    <!-- decorative hearts -->
+    <div class="hearts" aria-hidden>
+      <svg class="heart" viewBox="0 0 32 32"><path fill="#ff6b81" d="M23.6 3c-2.8 0-4.9 1.9-5.6 3.2C17.3 4.9 15.2 3 12.4 3 8.7 3 6 6.1 6 9.6c0 4.6 5.3 8.4 13 15.2 7.7-6.8 13-10.6 13-15.2C32 6.1 29.3 3 25.6 3z"/></svg>
+      <svg class="heart" viewBox="0 0 32 32"><path fill="#ff4d6d" d="M23.6 3c-2.8 0-4.9 1.9-5.6 3.2C17.3 4.9 15.2 3 12.4 3 8.7 3 6 6.1 6 9.6c0 4.6 5.3 8.4 13 15.2 7.7-6.8 13-10.6 13-15.2C32 6.1 29.3 3 25.6 3z"/></svg>
+    </div>
+
+    <!-- stylized "Spidey" SVG (comic-style masked hero) -->
+    <div class="spidey-wrap" aria-hidden>
+      <!-- A simple stylized mask SVG that evokes the comic-hero look. Replace with any image if you prefer. -->
+      <svg viewBox="0 0 400 400" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <radialGradient id="g1" cx="30%" cy="20%">
+            <stop offset="0%" stop-color="#ff6b6b"/>
+            <stop offset="100%" stop-color="#be1e2d"/>
+          </radialGradient>
+          <radialGradient id="g2" cx="70%" cy="80%">
+            <stop offset="0%" stop-color="#5aa0ff"/>
+            <stop offset="100%" stop-color="#1e5fb4"/>
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width="100%" height="100%" rx="14" fill="url(#g2)"/>
+        <!-- mask shape -->
+        <g transform="translate(30,20) scale(.9)">
+          <ellipse cx="200" cy="180" rx="150" ry="160" fill="url(#g1)" stroke="#000" stroke-width="6"/>
+          <!-- eyes -->
+          <path d="M110 150 C140 80, 190 80, 220 150 C190 135, 140 135, 110 150 Z" fill="#fff" stroke="#000" stroke-width="6"/>
+          <path d="M260 150 C230 80, 180 80, 150 150 C180 135, 230 135, 260 150 Z" fill="#fff" stroke="#000" stroke-width="6"/>
+          <!-- web lines -->
+          <g stroke="#000" stroke-width="2" fill="none" opacity="0.9">
+            <path d="M200 20 L200 330"/>
+            <path d="M70 60 L330 300"/>
+            <path d="M70 300 L330 60"/>
+            <path d="M120 30 C180 90, 220 90, 280 30"/>
+            <path d="M120 330 C180 270, 220 270, 280 330"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="panel" role="main">
+      <h1>Spidey Facts — but make it *romantic*</h1>
+      <div class="sub">Tap <strong>Next</strong> to see a fun fact — each one hides a little love note 💌</div>
+
+      <div class="bubble" id="bubble" aria-live="polite">
+        <div id="factText">Welcome, hero. Press <strong>Next</strong> to begin.</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="prevBtn">Prev</button>
+        <button class="btn secondary" id="nextBtn">Next</button>
+        <div style="flex:1"></div>
+        <div class="dots" id="dots"></div>
+      </div>
+
+    </div>
+
+    <!-- tiny hidden secret button (becomes visible after last fact) -->
+    <button class="secret" id="secretBtn" title="secret love letter">
+      <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#fff" d="M12 2L15 8l6 .5-4.5 3.6L19 20 12 16 5 20l1.5-7.9L2 8.5 8 8z"/></svg>
+    </button>
+
+    <!-- love letter modal -->
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="letterTitle">
+      <div class="letter">
+        <button class="close" id="closeLetter">Close</button>
+        <h2 id="letterTitle">A Letter For You</h2>
+        <p>Hey love,</p>
+        <p>Every silly fact we saw was just an excuse to tell you this: you make my days brighter, my laughs louder, and my heart faster. Whether we're being dramatic as superheroes or chilling with takeout, I choose you—today, tomorrow, and always.</p>
+        <p>I made this little comic page for you because you deserve all the warmth and silly hero energy in the world. Thank you for being my favorite person.</p>
+        <p>Love forever,<br><strong>Your [Your Name]</strong></p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // facts + love lines (the ones you asked for)
+    const slides = [
+      {fact: 'Did you know Spiderman was only 15 when he first became a superhero?', love: '…and I was born ready to love you forever.'},
+      {fact: 'Did you know Spiderman\'s webs can hold up to 120 pounds per strand?', love: '…but nothing can hold me tighter than your arms.'},
+      {fact: 'Did you know Spiderman can sense danger from miles away?', love: '…and my heart can sense you from even farther.'},
+      {fact: 'Did you know Spiderman once lifted over 10 tons?', love: '…but my love for you weighs even more.'},
+      {fact: 'Did you know Spiderman has faced over 200 villains in his lifetime?', love: '…and I\'d fight every single one for you.'},
+      {fact: 'Did you know Spiderman\'s fastest web swing speed is around 60 mph?', love: '…but I\'d swing to you even faster.'},
+      {fact: 'Did you know Spiderman wears a mask to protect his identity?', love: '…but I\'d take mine off just to smile at you.'},
+      {fact: 'Did you know Spiderman once teamed up with the Avengers?', love: '…but my favorite team will always be you and me.'},
+      {fact: 'Did you know Spiderman can stick to almost any surface?', love: '…and my heart\'s stuck to you forever.'},
+      {fact: 'Did you know Spiderman\'s motto is “With great power comes great responsibility”?', love: '…and my greatest responsibility is loving you.'}
+    ];
+
+    const bubble = document.getElementById('factText');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const dotsWrap = document.getElementById('dots');
+    const secretBtn = document.getElementById('secretBtn');
+    const modal = document.getElementById('modal');
+    const closeLetter = document.getElementById('closeLetter');
+
+    let index = -1; // start before the first
+    let typingTimer = null;
+
+    function makeDots(){
+      dotsWrap.innerHTML = '';
+      for(let i=0;i<slides.length;i++){
+        const d = document.createElement('div');d.className='dot';if(i===0)d.classList.add('active');dotsWrap.appendChild(d);
+      }
+    }
+    makeDots();
+
+    function updateDots(i){
+      const dots = dotsWrap.querySelectorAll('.dot');dots.forEach((d,idx)=>{d.classList.toggle('active', idx===i)});
+    }
+
+    // typewriter-ish reveal
+    function showSlide(i){
+      if(i<0) i=0; if(i>=slides.length) i=slides.length-1;
+      index = i;
+      updateDots(index);
+      const text = `<strong>${slides[index].fact}</strong><span class="love">${slides[index].love}</span>`;
+      // fade out, then set, then animate
+      bubble.style.opacity=0;setTimeout(()=>{
+        bubble.innerHTML = '<span style="opacity:0;display:inline-block;transform:translateY(6px);">'+text+'</span>';
+        const child = bubble.querySelector('span');
+        child.animate([{opacity:0, transform:'+'"translateY(8px)"+''},{opacity:1, transform:'translateY(0)'}],{duration:420,easing:'cubic-bezier(.2,.9,.2,1)'});
+        bubble.style.opacity=1;
+      },160);
+
+      // reveal secret button if last
+      if(index === slides.length - 1){
+        secretBtn.classList.add('revealed');
+      } else {
+        secretBtn.classList.remove('revealed');
+      }
+    }
+
+    nextBtn.addEventListener('click', ()=>{
+      if(index < slides.length - 1) showSlide(index+1);
+    });
+    prevBtn.addEventListener('click', ()=>{ if(index > 0) showSlide(index-1); });
+
+    // keyboard support
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'ArrowRight') nextBtn.click();
+      if(e.key === 'ArrowLeft') prevBtn.click();
+      if(e.key === 'Escape' && modal.classList.contains('show')) modal.classList.remove('show');
+    });
+
+    // clicking the tiny secret (or pressing it) opens the letter modal
+    secretBtn.addEventListener('click', ()=>{ modal.classList.add('show'); });
+    closeLetter.addEventListener('click', ()=>{ modal.classList.remove('show'); });
+
+    // start with first slide after a short intro delay
+    setTimeout(()=>{ showSlide(0); }, 700);
+
+    // accessibility: focus on next button for quick use
+    nextBtn.focus();
+  </script>
+</body>
+</html>
